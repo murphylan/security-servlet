@@ -1,5 +1,8 @@
 package com.academy.cn.securityservlet.config;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.academy.cn.securityservlet.domain.SecurityUser;
 import com.academy.cn.securityservlet.domain.User;
@@ -29,6 +35,7 @@ public class SecurityConfiguration {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
+        .cors(Customizer.withDefaults())
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/hello").hasAnyAuthority("ROLE_USER")
             .requestMatchers("/admin").hasAnyRole("ADMIN")
@@ -72,5 +79,17 @@ public class SecurityConfiguration {
       User user2 = new User("user2@abc.com", encoder.encode("password"), "ROLE_USER,ROLE_ADMIN");
       userRepository.save(user2);
     };
+  }
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowedOriginPatterns(Collections.singletonList("*"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("*"));
+    config.setAllowCredentials(true);
+    source.registerCorsConfiguration("/**", config);
+    return source;
   }
 }
