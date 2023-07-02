@@ -64,7 +64,7 @@ public class SecurityConfiguration {
         .httpBasic(Customizer.withDefaults())
         .oauth2ResourceServer((oauth2) -> oauth2
             .jwt(Customizer.withDefaults()))
-        .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling((exceptions) -> exceptions
             .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
             .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
