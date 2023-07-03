@@ -47,4 +47,5 @@ public class HelloController {
   public String admin(Authentication authentication) {
     return "Hello, " + authentication.getName() + "!";
   }
+
 }
