@@ -2,35 +2,40 @@ package com.academy.cn.securityservlet.domain;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class SecurityUser implements UserDetails {
-  private final User user;
+public class UserDetailInfo implements UserDetails {
 
-  public SecurityUser(User user) {
-    this.user = user;
-  }
+  private String username;
+  private String password;
+  private List<GrantedAuthority> authorities;
 
-  @Override
-  public String getUsername() {
-    return user.getUsername();
-  }
-
-  @Override
-  public String getPassword() {
-    return user.getPassword();
+  public UserDetailInfo(UserInfo userInfo) {
+    username = userInfo.getUsername();
+    password = userInfo.getPassword();
+    authorities = Arrays.stream(userInfo.getRoles().split(","))
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
   }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Arrays.stream(user
-        .getRoles()
-        .split(","))
-        .map(SimpleGrantedAuthority::new)
-        .toList();
+    return authorities;
+  }
+
+  @Override
+  public String getPassword() {
+    return password;
+  }
+
+  @Override
+  public String getUsername() {
+    return username;
   }
 
   @Override

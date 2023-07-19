@@ -7,9 +7,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "users")
 @Data
-public class User {
+@Table(name = "userinfo")
+public class UserInfo {
 
   @Id
   @GeneratedValue
@@ -18,12 +18,4 @@ public class User {
   private String password;
   private String roles;
 
-  public User() {
-  }
-
-  public User(String username, String password, String roles) {
-    this.username = username;
-    this.password = password;
-    this.roles = roles;
-  }
 }

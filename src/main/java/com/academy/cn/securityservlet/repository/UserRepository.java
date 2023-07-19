@@ -5,11 +5,11 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.academy.cn.securityservlet.domain.User;
+import com.academy.cn.securityservlet.domain.UserInfo;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<UserInfo, Long> {
 
-  Optional<User> findByUsername(String username);
+  Optional<UserInfo> findByUsername(String username);
 
 }

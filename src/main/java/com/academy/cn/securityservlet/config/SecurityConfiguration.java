@@ -21,8 +21,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.academy.cn.securityservlet.domain.SecurityUser;
-import com.academy.cn.securityservlet.domain.User;
+import com.academy.cn.securityservlet.domain.UserDetailInfo;
+import com.academy.cn.securityservlet.domain.UserInfo;
 import com.academy.cn.securityservlet.repository.UserRepository;
 
 @Configuration
@@ -52,7 +52,7 @@ public class SecurityConfiguration {
       // 根据用户名查询用户信息，这里假设使用userRepository来获取用户信息
       return userRepository
           .findByUsername(username)
-          .map(SecurityUser::new)
+          .map(UserDetailInfo::new)
           .orElseThrow(() -> new UsernameNotFoundException("Username not found: " + username));
     };
   }
@@ -73,11 +73,17 @@ public class SecurityConfiguration {
       System.out.println("Initialization code here...");
 
       // 初始化用户数据
-      User user1 = new User("user1@abc.com", encoder.encode("password"), "ROLE_USER");
-      userRepository.save(user1);
+      UserInfo userInfo = new UserInfo();
+      userInfo.setUsername("user1@abc.com");
+      userInfo.setPassword(encoder.encode("password"));
+      userInfo.setRoles("ROLE_USER");
+      userRepository.save(userInfo);
 
-      User user2 = new User("user2@abc.com", encoder.encode("password"), "ROLE_USER,ROLE_ADMIN");
-      userRepository.save(user2);
+      userInfo = new UserInfo();
+      userInfo.setUsername("user2@abc.com");
+      userInfo.setPassword(encoder.encode("password"));
+      userInfo.setRoles("ROLE_USER,ROLE_ADMIN");
+      userRepository.save(userInfo);
     };
   }
 
