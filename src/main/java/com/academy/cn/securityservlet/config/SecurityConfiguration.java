@@ -5,6 +5,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
 import java.util.List;
 
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -14,12 +16,12 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -35,22 +37,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.academy.cn.securityservlet.domain.SecurityUser;
 import com.academy.cn.securityservlet.domain.User;
 import com.academy.cn.securityservlet.repository.UserRepository;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
 @Configuration
 @EnableWebSecurity(debug = true)
 public class SecurityConfiguration {
 
-  @Value("${jwt.public.key}")
-  RSAPublicKey key;
+  // @Value("${jwt.public.key}")
+  // RSAPublicKey key;
 
-  @Value("${jwt.private.key}")
-  RSAPrivateKey priv;
+  // @Value("${jwt.private.key}")
+  // RSAPrivateKey priv;
+
+  @Value("${jwt.secret}")
+  private String secretKey;
 
   @Autowired
   private UserRepository userRepository;
@@ -119,16 +119,26 @@ public class SecurityConfiguration {
     return source;
   }
 
-  @Bean
-  JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withPublicKey(this.key).build();
-  }
+  // @Bean
+  // JwtDecoder jwtDecoder() {
+  // return NimbusJwtDecoder.withPublicKey(this.key).build();`
+  // }
+
+  // @Bean
+  // JwtEncoder jwtEncoder() {
+  // JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
+  // JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+  // return new NimbusJwtEncoder(jwks);
+  // }
 
   @Bean
   JwtEncoder jwtEncoder() {
-    JWK jwk = new RSAKey.Builder(this.key).privateKey(this.priv).build();
-    JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-    return new NimbusJwtEncoder(jwks);
+    return new NimbusJwtEncoder(new ImmutableSecret<>(secretKey.getBytes()));
   }
 
+  @Bean
+  JwtDecoder jwtDecoder() {
+    SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "RSA");
+    return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
+  }
 }
